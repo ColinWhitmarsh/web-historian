@@ -34,8 +34,24 @@ exports.isUrlInList = function() {
 exports.addUrlToList = function() {
 };
 
-exports.isUrlArchived = function() {
-  return false;
+exports.isUrlArchived = function(Url, callback) {
+  //Get the list of sites in exports.paths.archivedSites
+  fs.readdir(exports.paths.archivedSites, function(err, results) {
+    if(err) {
+      console.log('Error:', err);
+      return callback(err, null);
+    } else {
+      var isSiteArchived = false;
+
+      for(var i = 0; i<results.length; i++) {
+        if (results[i] === Url) {
+          isSiteArchived = true;
+        }
+      }
+      console.log('isSite?', isSiteArchived);
+      return callback(null, isSiteArchived);
+    }
+  });
 };
 
 exports.downloadUrls = function() {
