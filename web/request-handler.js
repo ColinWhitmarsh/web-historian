@@ -1,5 +1,6 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
+var serveAssets = require('./http-helpers').serveAssets;
 // require more modules/folders here!
 
 exports.handleRequest = function (req, res) {
@@ -16,10 +17,18 @@ exports.handleRequest = function (req, res) {
         res.statusCode = 500;
         res.end('Unknown server error');
       }
-
       if(isArchived) {
-        res.statusCode = 200;
-        res.end('google');
+        serveAssets(null,path.join(archive.paths.archivedSites, site), function(err, content){
+          if(err){
+            res.statusCode = 500;
+            res.end('Unknown server error');     
+          } else {
+            res.statusCode = 200;
+            res.end(content);
+          }
+        });
+        // res.statusCode = 200;
+        // res.end('google');
       } else {
         res.statusCode = 404;
         res.end('failure');
