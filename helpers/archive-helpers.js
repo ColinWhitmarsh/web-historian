@@ -32,13 +32,15 @@ exports.readListOfUrls = function(callback) {
 };
 
 exports.isUrlInList = function(Url, callback) {
-  fs.readFile(exports.paths.list, 'utf8', function(err, content){
-    if(err) {
-      callback(err, null);
-    } else {
-      isInList = (content.split("\n").indexOf(Url) > -1);
-      callback(null, isInList);
+  exports.readListOfUrls(function(urls){
+    isInList = false;
+    for(var i = 0; i<urls.length; i++) {
+      if (urls[i]===Url) {
+        isInList = true;
+        break;
+      }
     }
+    callback(null, isInList);
   });
 };
 
