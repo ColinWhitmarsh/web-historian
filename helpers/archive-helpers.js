@@ -28,7 +28,10 @@ exports.initialize = function(pathsObj) {
 
 exports.readListOfUrls = function(callback) {
   fs.readFile(exports.paths.list, 'utf8', function(err, content){
-    callback(content.split("\n"));
+    //Remove empty string last value from array
+    var sites = content.split("\n");
+    sites.pop();
+    callback(sites);
   });
 };
 
@@ -69,20 +72,14 @@ exports.isUrlArchived = function(Url, callback) {
           isSiteArchived = true;
         }
       }
-      return callback(null, isSiteArchived);
+      return callback(null, isSiteArchived, Url);
     }
   });
 };
 
 exports.downloadUrls = function(Urls) {
   for (var i = 0; i < Urls.length; i++) {
-    // perform GET request on each url
-    // write response to a text file
     request("http://" + Urls[i]).pipe(fs.createWriteStream(path.join(exports.paths.archivedSites, Urls[i])));
-
-
-
-
   }
 };
 
