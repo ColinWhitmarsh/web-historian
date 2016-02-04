@@ -61,12 +61,12 @@ describe("server", function() {
 
         request
           .post("/")
-          .type('form')
+          .type('json')
           .send({ url: url })
           .expect(302, function (err) {
             if (!err) {
               var fileContents = fs.readFileSync(archive.paths.list, 'utf8');
-              expect(fileContents).to.equal(url + "\n");
+              expect(fileContents).to.equal(url);
             }
 
             done(err);

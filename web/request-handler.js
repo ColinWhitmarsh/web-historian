@@ -17,7 +17,29 @@ exports.handleRequest = function (req, res) {
           }
         });
     } else if (req.method === "POST") {
-      console.log("/ POST");
+      //the business
+      var body = '';  
+      var Url;
+      req.on('data', function(data) {
+        body += data;
+      });
+      req.on('end', function() {
+        //PARSE NOT WORKING
+        console.log(body);
+        // console.log(JSON.parse(body));
+        Url = JSON.parse(body).url;
+        archive.isUrlInList(Url, function(err, isInList){
+          if(isInList){
+            res.statusCode = 200;
+            res.end('Content is already archived');
+          } else {
+            archive.addUrlToList(Url, function(err){
+              res.statusCode = 302;
+              res.end('Site will be archived soon');
+            });
+          }
+        });
+      });
     }
   } else {
     var site = req.url.substring(1);
