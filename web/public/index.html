@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <!--<link rel="stylesheet" type="text/css" href="styles.css" />-->
   <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.js"></script>
 </head>
 <body>
@@ -20,9 +20,9 @@
       data: JSON.stringify(data),
       dataType: 'html',
       contentType: "application/json",
-      success: function(data, something, xhr) {
-        console.log(xhr);
-        document.location = xhr.responseText;
+      success: function(data) {
+        var obj = JSON.parse(data);
+        document.location = obj.redirectUrl;
       }
     });
   });

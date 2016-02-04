@@ -69,7 +69,6 @@ exports.isUrlArchived = function(Url, callback) {
           isSiteArchived = true;
         }
       }
-      console.log('isSite?', isSiteArchived);
       return callback(null, isSiteArchived);
     }
   });
