@@ -34,8 +34,8 @@ exports.handleRequest = function (req, res) {
             res.end('Content is already archived');
           } else {
             archive.addUrlToList(Url, function(err){
-              res.statusCode = 302;
-              res.end('Site will be archived soon');
+              res.writeHead(302, {Location: '/loading.html'});
+              res.end();
             });
           }
         });
@@ -43,13 +43,9 @@ exports.handleRequest = function (req, res) {
     }
   } else {
     var site = req.url.substring(1);
-    archive.isUrlArchived(site, function(err, isArchived) {
-      if(err) {
-        res.statusCode = 500;
-        res.end('Unknown server error');
-      }
-      if(isArchived) {
-        serveAssets(null,path.join(archive.paths.archivedSites, site), function(err, content){
+    console.log(site);
+    if(site === 'loading.html') {
+      serveAssets(null,path.join(__dirname, 'public/loading.html'), function(err, content){
           if(err){
             res.statusCode = 500;
             res.end('Unknown server error');     
@@ -58,13 +54,32 @@ exports.handleRequest = function (req, res) {
             res.end(content);
           }
         });
-        // res.statusCode = 200;
-        // res.end('google');
-      } else {
-        res.statusCode = 404;
-        res.end('failure');
-      }
-    }); 
+    } else {
+      archive.isUrlArchived(site, function(err, isArchived) {
+        if(err) {
+          res.statusCode = 500;
+          res.end('Unknown server error');
+        }
+        if(isArchived) {
+          serveAssets(null,path.join(archive.paths.archivedSites, site), function(err, content){
+            if(err){
+              res.statusCode = 500;
+              res.end('Unknown server error');     
+            } else {
+              res.statusCode = 200;
+              res.end(content);
+            }
+          });
+          // res.statusCode = 200;
+          // res.end('google');
+        } else {
+          //THIS MAKES IT WORK< HOW????
+          res.writeHead(302, {Location: '/loading.html'});
+          res.end();
+        }
+      }); 
+    }
+
   }
 
   // res.statusCode = 500;
