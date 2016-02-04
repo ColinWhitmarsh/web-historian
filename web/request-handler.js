@@ -25,8 +25,15 @@ exports.handleRequest = function (req, res) {
         Url = JSON.parse(body).url;
         archive.isUrlInList(Url, function(err, isInList){
           if(isInList){
-            res.statusCode = 200;
-            res.end('Content is already archived');
+            archive.isUrlArchived(Url, function(err, isArchived){
+              if(isArchived) {
+                res.statusCode = 200;
+                res.end(JSON.stringify({redirectUrl: Url}));
+              } else {
+                res.statusCode = 201;
+                res.end(JSON.stringify({redirectUrl: 'loading.html'}));  
+              }
+            });
           } else {
             archive.addUrlToList(Url, function(err){
               res.statusCode = 201;
