@@ -6,7 +6,16 @@ var serveAssets = require('./http-helpers').serveAssets;
 exports.handleRequest = function (req, res) {
   if(req.url === "/"){
     if(req.method === "GET") {
-      console.log("/ GET");
+      console.log(__dirname);
+      serveAssets(null, path.join(__dirname, '/public/index.html'), function(err, content) {
+        if(err){
+            res.statusCode = 500;
+            res.end('Unknown server error');     
+          } else {
+            res.statusCode = 200;
+            res.end(content);
+          }
+        });
     } else if (req.method === "POST") {
       console.log("/ POST");
     }
