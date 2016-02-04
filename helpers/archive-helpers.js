@@ -39,7 +39,14 @@ exports.isUrlInList = function(Url, callback) {
   });
 };
 
-exports.addUrlToList = function() {
+exports.addUrlToList = function(Url, callback) {
+  fs.appendFile(exports.paths.list, Url, 'utf8', function(err) {
+    if(err) {
+      callback(err);
+    } else {
+      callback(null);
+    }
+  });
 };
 
 exports.isUrlArchived = function(Url, callback) {
