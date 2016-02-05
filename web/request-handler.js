@@ -1,7 +1,9 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var serveAssets = require('./http-helpers').serveAssets;
-// require more modules/folders here!
+var Promise = require('bluebird');
+var archiveAsync = Promise.promisifyAll(require('../helpers/archive-helpers'));
+var serveAssetsAsync = Promise.promisify(serveAssets);
 
 exports.handleRequest = function (req, res) {
   
@@ -53,27 +55,32 @@ var rootResponse = function (req, res) {
 
   var siteResponse = function (req, res) {
     var site = req.url.substring(1);
-    archive.isUrlArchived(site, function(err, isArchived) {
-        if(err) {
-          res.statusCode = 500;
-          res.end('Unknown server error');
-        }
+    archiveAsync.isUrlArchivedAsync(site)
+      .then(function(isArchived) {
         if(isArchived) {
-          serveAssets(res, path.join(archive.paths.archivedSites, site), serveSiteContent);
+          serveAssetsAsync(res, path.join(archive.paths.archivedSites, site))
+            .then(function (siteContent) {
+              serveSiteContent(res, siteContent);
+            })
+            .catch(function(err){
+              console.log(err);
+              res.statusCode = 500;
+              res.end('Unknown server error');     
+            });
         } else {
           res.statusCode = 404;
           res.end('Bad request');
         }
+      })
+      .catch(function(err){
+        console.log(err);
+        res.statusCode = 500;
+        res.end('Our bad');
       }); 
   };
 
-  var serveSiteContent = function(res, err, content) {
-    if(err){
-        res.statusCode = 500;
-        res.end('Unknown server error');     
-      } else {
-        res.statusCode = 200;
-        res.end(content);
-      }
+  var serveSiteContent = function(res, content) {
+    res.statusCode = 200;
+    res.end(content);
   };
 

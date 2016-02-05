@@ -19,9 +19,9 @@ exports.serveAssets = function(res, asset, callback) {
   // invoke callback with asset data and response 
   fs.readFile(asset, 'utf8', function(err, content){
     if(err) {
-      callback(res, err, null);
+      callback(err, null);
     } else {
-      callback(res, null, content);
+      callback(null, content);
     }
   });
 
