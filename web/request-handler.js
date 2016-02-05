@@ -18,7 +18,8 @@ exports.handleRequest = function (req, res) {
 
 var rootResponse = function (req, res) {
     if(req.method === "GET") {
-      serveAssets(res, path.join(__dirname, '/public/index.html'), serveSiteContent);
+      serveAssets(res, path.join(__dirname, '/public/index.html'), function(err, content){serveSiteContent(content,res);});
+        
     } else if (req.method === "POST") {
       var body = '';  
       var Url;
@@ -27,21 +28,34 @@ var rootResponse = function (req, res) {
       });
       req.on('end', function() {
         Url = JSON.parse(body).url;
-        archive.isUrlInList(Url, function(err, isInList){
-          if(isInList){
-            archive.isUrlArchived(Url, function(err, isArchived){
-              if(isArchived) {
-                res.statusCode = 200;
-                res.end(JSON.stringify({redirectUrl: Url}));
-              } else {
-                res.statusCode = 201;
-                res.end(JSON.stringify({redirectUrl: 'loading.html'}));  
-              }
-            });
+        archiveAsync.isUrlInListAsync(Url)
+          .then(function(isInList){
+            if(isInList){
+              archiveAsync.isUrlArchivedAsync(Url)
+              .then(function(isArchived){
+                if(isArchived) {
+                  res.statusCode = 200;
+                  res.end(JSON.stringify({redirectUrl: Url}));
+                } else {
+                  res.statusCode = 201;
+                  res.end(JSON.stringify({redirectUrl: 'loading.html'}));  
+                }
+              })
+              .catch(function(err){
+                console.log(err);
+                res.statusCode = 500;
+                res.end('Unknown server error');    
+              });
           } else {
-            archive.addUrlToList(Url, function(err){
+            archiveAsync.addUrlToListAsync(Url)
+            .then(function(){
               res.statusCode = 201;
               res.end(JSON.stringify({redirectUrl: 'loading.html'}));
+            })
+            .catch(function(err){
+              console.log(err);
+              res.statusCode = 500;
+              res.end('Unknown server error');    
             });
           }
         });
@@ -50,7 +64,7 @@ var rootResponse = function (req, res) {
   };
 
   var loadingResponse = function (req, res) {
-    serveAssets(res, path.join(__dirname, 'public/loading.html'), serveSiteContent);
+    serveAssets(res, path.join(__dirname, 'public/loading.html'), function(err, content){serveSiteContent(content,res);});
   };
 
   var siteResponse = function (req, res) {
@@ -60,7 +74,7 @@ var rootResponse = function (req, res) {
         if(isArchived) {
           serveAssetsAsync(res, path.join(archive.paths.archivedSites, site))
             .then(function (siteContent) {
-              serveSiteContent(res, siteContent);
+              serveSiteContent(siteContent, res);
             })
             .catch(function(err){
               console.log(err);
@@ -77,10 +91,12 @@ var rootResponse = function (req, res) {
         res.statusCode = 500;
         res.end('Our bad');
       }); 
+      console.log('end of function');
   };
 
-  var serveSiteContent = function(res, content) {
+  var serveSiteContent = function(content, res) {
     res.statusCode = 200;
+    console.log('served content');
     res.end(content);
   };
 
