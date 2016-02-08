@@ -1,6 +1,10 @@
 // Use the code in `archive-helpers.js` to actually download the urls
 // that are waiting.
 
+//For automatic downloading, add the line below to local crontab
+// * * * * * /usr/local/bin/node /absolute/path/to/htmlfetcher.js
+
+
 
 var helper = require('../helpers/archive-helpers');
 var urlsToDownload = [];
