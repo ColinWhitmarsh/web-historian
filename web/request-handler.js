@@ -91,12 +91,10 @@ var rootResponse = function (req, res) {
         res.statusCode = 500;
         res.end('Our bad');
       }); 
-      console.log('end of function');
   };
 
   var serveSiteContent = function(content, res) {
     res.statusCode = 200;
-    console.log('served content');
     res.end(content);
   };
 
